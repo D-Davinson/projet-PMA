@@ -8,6 +8,12 @@ X = None
 Y = None
 Z = None
 
+class TaskSystem:
+    def __init__(self,lTaks=[Task],dict={}):
+        self.lTaks = lTaks
+        self.dict = dict
+
+
 
 # fonction
 def runT1():
@@ -33,13 +39,7 @@ tSomme.reads = ["X", "Y"]
 tSomme.writes = ["Z"]
 tSomme.run = runTsomme
 
-dicta={t1.name : [],t2.name :[t1.name],tSomme.name : [t1.name,t2.name]} 
-
-class TaskSystem:
-    def __init__(self,lTaks=[Task],dict=dicta):
-        self.lTaks = lTaks
-        self.dict = dict
-
+s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
 
 #compilaiton
 t1.run()
