@@ -1,20 +1,29 @@
-#class
 class Task:
     name = ""
     reads = []
     writes = []
     run = None
-X = None
-Y = None
-Z = None
 
 class TaskSystem:
-    def __init__(self,lTaks=[Task],dict={}):
-        self.lTaks = lTaks
+    def __init__(self, lTask=[Task], dict={}):
+        self.lTask = lTask
         self.dict = dict
 
+    def getDependencies(self,nomTache):
+        visited = set()
+        deps = []
 
+        def search(t):
+            visited.add(t)
+            for depend in self.dict[t]:
+                if depend not in visited:
+                     search(depend)
+                     deps.append(depend)
 
+        search(nomTache)
+        return sorted(set(deps))
+
+        
 # fonction
 def runT1():
     global X
@@ -48,3 +57,4 @@ tSomme.run()
 print(X)
 print(Y)
 print(Z)
+print(s1.getDependencies("somme"))
