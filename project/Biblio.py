@@ -26,6 +26,26 @@ class TaskSystem:
                     depend.append(i.name)
 
         return depend
+    
+
+    def runSeq(self):
+        # Trouver la première tâche à exécuter
+        to_run = None
+        for tache in self.lTask:
+            if not tache.reads:
+                to_run = tache
+                break
+        if not to_run:
+            # Aucune tâche sans dépendances trouvée
+            return
+        
+        # Exécution de la tâche
+        to_run.run()
+        
+        # Exécution des tâches dépendantes
+        for dependance in self.lTask:
+            if to_run.name in dependance.reads:
+                self.runSeq(dependance)
 
 
         
