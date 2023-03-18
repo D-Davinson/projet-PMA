@@ -1,6 +1,6 @@
 #import
 import threading
-
+import graphviz
 class Task:
     name = ""
     reads = []
@@ -77,6 +77,13 @@ class TaskSystem:
             for tache_name, thread in running_threads.items():
                 thread.join()
                 del running_threads[tache_name]
+    def draw():
+            # graphviz pour generer les noeud et arc
+        g = graphviz.Digraph('G',filename ='Biblio.gv')
+        g.edge(t1.name,tSomme.name)
+        g.edge(t2.name,tSomme.name)
+        g.view()
+
 
         
 # fonction
@@ -107,7 +114,6 @@ tSomme.writes = ["Z"]
 tSomme.run = runTsomme
 
 s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
-
 #compilaiton
 t1.run()
 t2.run()
@@ -118,6 +124,8 @@ print(X)
 print(Y)
 print(Z)
 print(s1.getDependencies("somme"))
+
+s1.draw()
 
 
 # graphviz pour generer les noeud et arc
