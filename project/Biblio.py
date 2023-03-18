@@ -1,3 +1,6 @@
+#import
+import threading
+
 class Task:
     name = ""
     reads = []
@@ -26,6 +29,7 @@ class TaskSystem:
                     depend.append(i.name)
 
         return depend
+        
     
 
     def runSeq(self):
@@ -48,6 +52,32 @@ class TaskSystem:
                 self.runSeq(dependance)
 
 
+    def run(self):
+        # Dictionnaire des threads en cours d'exécution pour chaque tâche
+        running_threads = {}
+
+        while True:
+            # Trouver toutes les tâches sans dépendances non encore exécutées
+            to_run = []
+            for tache in self.lTask:
+                if not tache.reads and tache.name not in running_threads:
+                    to_run.append(tache)
+            if not to_run:
+                # Aucune tâche sans dépendances non encore exécutée trouvée
+                break
+
+            # Lancer autant de threads que possible
+            max_threads = 4  # Nombre maximal de threads en cours d'exécution simultanément
+            for tache in to_run:
+                if len(running_threads) < max_threads:
+                    running_threads[tache.name] = threading.Thread(target=tache.run)
+                    running_threads[tache.name].start()
+
+            # Attendre la fin de tous les threads en cours d'exécution
+            for tache_name, thread in running_threads.items():
+                thread.join()
+                del running_threads[tache_name]
+
         
 # fonction
 def runT1():
@@ -60,8 +90,8 @@ def runT3():
     global W
     W = 4
 def runTsomme():
-    global X, Y, Z , W
-    Z = X + Y + W
+    global X, Y, Z
+    Z = X + Y
 t1 = Task()
 t1.name = "T1"
 t1.writes = ["X"]
@@ -70,21 +100,24 @@ t2 = Task()
 t2.name = "T2"
 t2.writes = ["Y"]
 t2.run = runT2
-t3 = Task()
-t3.name = "T3"
-t3.writes = ["W"]
-t3.run = runT3
 tSomme = Task()
 tSomme.name = "somme"
 tSomme.reads = ["X", "Y","W"]
 tSomme.writes = ["Z"]
 tSomme.run = runTsomme
 
-s1 = TaskSystem([t1, t2, tSomme,t3], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"],"T3":["somme","T2","T1"]})
+s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
 
 #compilaiton
 t1.run()
 t2.run()
-t3.run()
 tSomme.run()
-print(s1.getDependencies("T3"))
+s1.runSeq
+s1.run
+print(X)
+print(Y)
+print(Z)
+print(s1.getDependencies("somme"))
+
+
+# graphviz pour generer les noeud et arc
