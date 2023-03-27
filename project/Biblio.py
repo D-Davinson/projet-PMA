@@ -14,7 +14,7 @@ class TaskSystem:
 
     def getDependencies(self, nomTache):
         depend = []
-        ensemble = set()
+        ensemble = set() #Utilisation de la propriété d'un ensemble pour eviter les taches qui se repètent.
 
         for i in self.lTask:
             if nomTache in i.reads:
@@ -77,12 +77,12 @@ class TaskSystem:
             for tache_name, thread in running_threads.items():
                 thread.join()
                 del running_threads[tache_name]
-    def draw():
-            # graphviz pour generer les noeud et arc
-        g = graphviz.Digraph('G',filename ='Biblio.gv')
-        g.edge(t1.name,tSomme.name)
-        g.edge(t2.name,tSomme.name)
-        g.view()
+    # def draw():
+    #      # graphviz pour generer les noeud et arc
+    #     g = graphviz.Digraph('G',filename ='Biblio.gv')
+    #     g.edge(t1.name,tSomme.name)
+    #     g.edge(t2.name,tSomme.name)
+    #     g.view()
 
 
         
@@ -118,14 +118,15 @@ s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]
 t1.run()
 t2.run()
 tSomme.run()
-s1.runSeq
-s1.run
 print(X)
 print(Y)
 print(Z)
 print(s1.getDependencies("somme"))
 
-s1.draw()
 
 
 # graphviz pour generer les noeud et arc
+# g = graphviz.Digraph('G',filename ='Biblio.gv')
+# g.edge(t1.name,tSomme.name)
+# g.edge(t2.name,tSomme.name)
+# g.view()
