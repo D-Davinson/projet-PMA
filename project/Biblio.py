@@ -70,15 +70,55 @@ class TaskSystem:
             for tache_name, thread in running_threads.items():
                 thread.join()
                 del running_threads[tache_name]
-    # def draw():
-    #      # graphviz pour generer les noeud et arc
-    #     g = graphviz.Digraph('G',filename ='Biblio.gv')
-    #     g.edge(t1.name,tSomme.name)
-    #     g.edge(t2.name,tSomme.name)
-    #     g.view()
+
+    def draw(self):
+        # Créer le graphe
+        graph = graphviz.Digraph()
+
+        # Ajouter les noeuds
+        for tache in self.lTask:
+            graph.node(tache.name)
+
+        # Ajouter les liens
+            for dep in self.dict[tache.name]:
+                graph.edge(dep, tache.name)
+
+        # Afficher le graphe
+        graph.view()
 
 
-        
+def error_message(lTask, dict):
+    # Vérifier si les noms de tâches sont uniques
+    task_names = [t.name for t in lTask]
+    if len(task_names) != len(set(task_names)):
+        print("Erreur: Les noms des tâches ne sont pas uniques")
+        return False
+    
+    # Vérifier si toutes les tâches mentionnées dans le dictionnaire de précédence existent
+    all_task_names = set(task_names)
+    for t, deps in dict.items():
+        if t not in all_task_names:
+            print(f"Erreur: La tâche {t} n'existe pas")
+            return False
+        for dep in deps:
+            if dep not in all_task_names:
+                print(f"Erreur: La tâche {dep} mentionnée comme dépendance de {t} est inexistante")
+                return False
+    
+    # Vérifier si le système de tâches est déterminé
+    visited = set()
+    for t in all_task_names:
+        if t not in visited:
+            deps = TaskSystem(lTask, dict).getDependencies(t)
+            visited.update(deps)
+    if visited != all_task_names:
+        print("Erreur: Le système de tâches est indéterminé")
+        return False
+    
+    return True        
+
+
+
 # fonction
 def runT1():
     global X
@@ -110,16 +150,10 @@ tSomme.run = runTsomme
 t1.run()
 t2.run()
 tSomme.run()
-s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
+s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": [], "somme": ["T1", "T2"]})
 print(X)
 print(Y)
 print(Z)
-print(s1.getDependencies(t2.name))
 
 
-
-# graphviz pour generer les noeud et arc
-# g = graphviz.Digraph('G',filename ='Biblio.gv')
-# g.edge(t1.name,tSomme.name)
-# g.edge(t2.name,tSomme.name)
-# g.view()
+error_message([t1, t2, tSomme], {"T1": [], "T2": [], "somme": ["T1", "T2"]})
