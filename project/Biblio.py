@@ -8,11 +8,12 @@ class Task:
     run = None
 
 class TaskSystem:
-    def __init__(self, lTask=[Task], dict={}):
+    def __init__(self, lTask=[Task], dict={}, max_threads=4):
         self.lTask = lTask
         self.dict = dict
+        self.max_threads = max_threads
 
-    def getDependencies(self,nomTache):
+    def getDependencies(self, nomTache):
         visited = set()
         deps = []
 
@@ -20,10 +21,20 @@ class TaskSystem:
             visited.add(t)
             for i in self.dict[t]:
                 if i not in visited:
-                     search(i)
-                     deps.append(i)
+                    dependencies_ready = True
+                    for r in self.lTask:
+                        if r.name == i and r.run is None:
+                            dependencies_ready = False
+                            break
+                    if dependencies_ready:
+                        t = threading.Thread(target=search, args=(i,))
+                        t.start()
+                        deps.append(i)
 
         search(nomTache)
+        for thread in threading.enumerate():
+            if thread != threading.main_thread():
+                thread.join()
         return sorted(set(deps))
 
     def runSeq(self):
@@ -46,30 +57,31 @@ class TaskSystem:
                 self.runSeq(dependance)
 
     def run(self):
-        # Dictionnaire des threads en cours d'exécution pour chaque tâche
-        running_threads = {}
+        # Liste des threads en cours d'exécution
+        running_threads = []
 
-        while True:
-            # Trouver toutes les tâches sans dépendances non encore exécutées
-            to_run = []
-            for tache in self.lTask:
-                if not tache.reads and tache.name not in running_threads:
-                    to_run.append(tache)
-            if not to_run:
-                # Aucune tâche sans dépendances non encore exécutée trouvée
-                break
+        # Liste des tâches prêtes à être exécutées
+        ready_tasks = [t for t in self.lTask if not t.reads]
 
+        while ready_tasks or running_threads:
             # Lancer autant de threads que possible
-            max_threads = 4  # Nombre maximal de threads en cours d'exécution simultanément
-            for tache in to_run:
-                if len(running_threads) < max_threads:
-                    running_threads[tache.name] = threading.Thread(target=tache.run)
-                    running_threads[tache.name].start()
+            while len(running_threads) < self.max_threads and ready_tasks:
+                tache = ready_tasks.pop(0)
+                thread = threading.Thread(target=tache.run)
+                thread.start()
+                running_threads.append((tache, thread))
 
-            # Attendre la fin de tous les threads en cours d'exécution
-            for tache_name, thread in running_threads.items():
-                thread.join()
-                del running_threads[tache_name]
+            # Attendre la fin d'un thread
+            for task_thread in running_threads:
+                task, thread = task_thread
+                if not thread.is_alive():
+                    running_threads.remove(task_thread)
+                    # Exécuter les tâches dépendantes
+                    for dependance in self.lTask:
+                        if task.name in dependance.reads:
+                            dependance.reads.remove(task.name)
+                            if not dependance.reads:
+                                ready_tasks.append(dependance)
 
     def draw(self):
         # Créer le graphe
@@ -150,10 +162,9 @@ tSomme.run = runTsomme
 t1.run()
 t2.run()
 tSomme.run()
-s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": [], "somme": ["T1", "T2"]})
+s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
 print(X)
 print(Y)
 print(Z)
 
-
-error_message([t1, t2, tSomme], {"T1": [], "T2": [], "somme": ["T1", "T2"]})
+print(s1.getDependencies("somme"))
