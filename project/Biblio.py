@@ -12,25 +12,19 @@ class TaskSystem:
         self.lTask = lTask
         self.dict = dict
 
-    def getDependencies(self, nomTache):
-        depend = []
-        ensemble = set() #Utilisation de la propriété d'un ensemble pour eviter les taches qui se repètent.
+    def getDependencies(self,nomTache):
+        visited = set()
+        deps = []
 
-        for i in self.lTask:
-            if nomTache in i.reads:
-                ensemble.add(i.name)
-            if i.name not in ensemble and i.name != nomTache:
-                execution = True
-                for j in i.reads:
-                    if j in ensemble:
-                        execution = False
-                        break
-                if execution:
-                    depend.append(i.name)
+        def search(t):
+            visited.add(t)
+            for i in self.dict[t]:
+                if i not in visited:
+                     search(i)
+                     deps.append(i)
 
-        return depend
-        
-    
+        search(nomTache)
+        return sorted(set(deps))
 
     def runSeq(self):
         # Trouver la première tâche à exécuter
@@ -50,7 +44,6 @@ class TaskSystem:
         for dependance in self.lTask:
             if to_run.name in dependance.reads:
                 self.runSeq(dependance)
-
 
     def run(self):
         # Dictionnaire des threads en cours d'exécution pour chaque tâche
@@ -113,15 +106,15 @@ tSomme.reads = ["X", "Y","W"]
 tSomme.writes = ["Z"]
 tSomme.run = runTsomme
 
-s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
 #compilaiton
 t1.run()
 t2.run()
 tSomme.run()
+s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
 print(X)
 print(Y)
 print(Z)
-print(s1.getDependencies("somme"))
+print(s1.getDependencies(t2.name))
 
 
 
