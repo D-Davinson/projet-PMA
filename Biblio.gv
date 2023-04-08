@@ -1,4 +1,0 @@
-digraph G {
-	T1 -> somme
-	T2 -> somme
-}

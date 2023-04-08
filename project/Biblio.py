@@ -17,18 +17,18 @@ class TaskSystem:
         visited = set()
         deps = []
 
-        def search(t):
-            visited.add(t)
-            for i in self.dict[t]:
+        def search(task):
+            visited.add(task)
+            for i in self.dict[task]:
                 if i not in visited:
                     dependencies_ready = True
-                    for r in self.lTask:
-                        if r.name == i and r.run is None:
+                    for j in self.lTask:
+                        if j.name == i and j.run is None:
                             dependencies_ready = False
                             break
                     if dependencies_ready:
-                        t = threading.Thread(target=search, args=(i,))
-                        t.start()
+                        thread = threading.Thread(target=search, args=(i,))
+                        thread.start()
                         deps.append(i)
 
         search(nomTache)
@@ -167,4 +167,4 @@ print(X)
 print(Y)
 print(Z)
 
-print(s1.getDependencies("somme"))
+error_message([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})

@@ -1,0 +1,8 @@
+digraph {
+	T1
+	T2
+	T1 -> T2
+	somme
+	T1 -> somme
+	T2 -> somme
+}
