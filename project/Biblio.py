@@ -1,6 +1,5 @@
 #import
-import threading
-import graphviz
+import threading,graphviz,random,time
 class Task:
     name = ""
     reads = []
@@ -82,6 +81,35 @@ class TaskSystem:
                             dependance.reads.remove(task.name)
                             if not dependance.reads:
                                 ready_tasks.append(dependance)
+    
+    def detTestRnd(self, num_runs=10):
+
+        for i in range(num_runs):
+            # Générer des valeurs aléatoires pour les variables
+            for i in self.lTask:
+                for j in i.reads + i.writes:
+                    setattr(i, j, random.randint(0, 1000))
+
+            # Exécuter le système de tâches en mode séquentiel et stocker le résultat
+            results_seq = {}
+            for i in self.lTask:
+                i.run = lambda: results_seq.update({i.name: getattr(i, "result", None)})
+            self.runSeq()
+
+            # Exécuter le système de tâches en mode parallèle et comparer le résultat
+            results_par = {}
+            for i in self.lTask:
+                i.run = lambda: results_par.update({i.name: getattr(i, "result", None)})
+            self.run()
+
+            # Comparer les résultats de l'exécution séquentielle et parallèle
+            if results_seq != results_par:
+                print(f"Le test a échoué pour le jeu de valeurs aléatoires n°{i+1}")
+                return False
+
+        # Tous les tests ont réussi
+        print(f"Tous les {num_runs} tests ont réussi")
+        return True                        
 
     def draw(self):
         # Créer le graphe
@@ -154,7 +182,7 @@ t2.writes = ["Y"]
 t2.run = runT2
 tSomme = Task()
 tSomme.name = "somme"
-tSomme.reads = ["X", "Y","W"]
+tSomme.reads = ["X", "Y"]
 tSomme.writes = ["Z"]
 tSomme.run = runTsomme
 
@@ -163,8 +191,4 @@ t1.run()
 t2.run()
 tSomme.run()
 s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
-print(X)
-print(Y)
-print(Z)
-
-error_message([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
+s1.draw()
