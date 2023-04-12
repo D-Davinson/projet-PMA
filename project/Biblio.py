@@ -1,5 +1,5 @@
 #import
-import threading,graphviz,random,time
+import threading,graphviz,random
 class Task:
     name = ""
     reads = []
