@@ -1,5 +1,5 @@
 #import
-import threading,graphviz,random
+import threading,graphviz,random,time
 class Task:
     name = ""
     reads = []
@@ -109,7 +109,33 @@ class TaskSystem:
 
         # Tous les tests ont réussi
         print(f"Tous les {num_runs} tests ont réussi")
-        return True                        
+        return True
+    
+    def parCost(self, num_runs=10):
+        seq_times = []
+        par_times = []
+        
+        # execution des tâches en mode séquentiel et parallèle
+        self.runSeq()
+        self.run()
+        
+        # mesure l'execution en time
+        for i in range(num_runs):
+            start_time_sq = time.time()
+            self.runSeq()
+            seq_times.append(time.time() - start_time_sq)
+            
+            start_time_par = time.time()
+            self.run()
+            par_times.append(time.time() - start_time_par)
+            
+        seq_avg = sum(seq_times) / num_runs
+        par_avg = sum(par_times) / num_runs
+        
+        print(f"Execution séquenciel: {seq_avg:.6f} secondes")
+        print(f"Execution parallèle: {par_avg:.6f} secondes")
+        print(f"Diffèrence: {par_avg - seq_avg:.6f} secondes")
+                            
 
     def draw(self):
         # Créer le graphe
