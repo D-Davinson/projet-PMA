@@ -129,12 +129,12 @@ class TaskSystem:
             self.run()
             par_times.append(time.time() - start_time_par)
             
-        seq_avg = sum(seq_times) / num_runs
-        par_avg = sum(par_times) / num_runs
+        average_seq = sum(seq_times) / num_runs
+        average_par = sum(par_times) / num_runs
         
-        print(f"Execution séquenciel: {seq_avg:.6f} secondes")
-        print(f"Execution parallèle: {par_avg:.6f} secondes")
-        print(f"Diffèrence: {par_avg - seq_avg:.6f} secondes")
+        print(f"Execution séquenciel: {average_seq:.6f} secondes")
+        print(f"Execution parallèle: {average_par:.6f} secondes")
+        print(f"Diffèrence: {average_par - average_seq:.6f} secondes")
                             
 
     def draw(self):
@@ -182,39 +182,3 @@ def error_message(lTask, dict):
         return False
     
     return True        
-
-
-
-# fonction
-def runT1():
-    global X
-    X = 5
-def runT2():
-    global Y
-    Y = 2
-def runT3():
-    global W
-    W = 4
-def runTsomme():
-    global X, Y, Z
-    Z = X + Y
-t1 = Task()
-t1.name = "T1"
-t1.writes = ["X"]
-t1.run = runT1
-t2 = Task()
-t2.name = "T2"
-t2.writes = ["Y"]
-t2.run = runT2
-tSomme = Task()
-tSomme.name = "somme"
-tSomme.reads = ["X", "Y"]
-tSomme.writes = ["Z"]
-tSomme.run = runTsomme
-
-#compilaiton
-t1.run()
-t2.run()
-tSomme.run()
-s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
-s1.draw()

@@ -1,0 +1,58 @@
+import biblio
+
+#fonction des differentes tâches
+def runT1():
+    global X
+    X = 5
+def runT2():
+    global Y
+    Y = 2
+def runT3():
+    global W
+    W = 4
+def runTsomme():
+    global X, Y, Z
+    Z = X + Y
+
+# lecture et ecriture dans les tâches
+t1 = biblio.Task()
+t1.name = "T1"
+t1.writes = ["X"]
+t1.run = runT1
+t2 = biblio.Task()
+t2.name = "T2"
+t2.writes = ["Y"]
+t2.run = runT2
+tSomme = biblio.Task()
+tSomme.name = "somme"
+tSomme.reads = ["X", "Y"]
+tSomme.writes = ["Z"]
+tSomme.run = runTsomme
+
+#lancement de la totalité des tâches
+t1.run()
+t2.run()
+tSomme.run()
+
+# initialisation du sysstème de tâches
+
+s1 = biblio.TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
+
+#lancement des differentes méthodes depuis la bibliothèque biblio.py -> Class TaskSystem
+
+s1.getDependencies("T1")
+s1.runSeq()
+s1.run()
+s1.detTestRnd()
+s1.parCost()
+
+#lancement de la méthode de validité d'entrée depuis la bibliothèque biblio.py
+
+biblio.error_message([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
+
+
+
+# methode draw mis en commentaire du fait d'un soucis lors de son exécution (problème directement liées dans la libraire de Graphviz)
+# fonctionne lorsque l'on execute uniquement cette méthode.
+
+# s1.draw()
