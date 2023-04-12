@@ -1,4 +1,4 @@
-import biblio
+from biblio import *
 
 #fonction des differentes tâches
 def runT1():
@@ -15,15 +15,15 @@ def runTsomme():
     Z = X + Y
 
 # lecture et ecriture dans les tâches
-t1 = biblio.Task()
+t1 = Task()
 t1.name = "T1"
 t1.writes = ["X"]
 t1.run = runT1
-t2 = biblio.Task()
+t2 = Task()
 t2.name = "T2"
 t2.writes = ["Y"]
 t2.run = runT2
-tSomme = biblio.Task()
+tSomme = Task()
 tSomme.name = "somme"
 tSomme.reads = ["X", "Y"]
 tSomme.writes = ["Z"]
@@ -36,11 +36,11 @@ tSomme.run()
 
 # initialisation du sysstème de tâches
 
-s1 = biblio.TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
+s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
 
 #lancement des differentes méthodes depuis la bibliothèque biblio.py -> Class TaskSystem
 
-s1.getDependencies("T1")
+print(s1.getDependencies("T1"), "est la liste de dépendances de la tâche")
 s1.runSeq()
 s1.run()
 s1.detTestRnd()
@@ -48,7 +48,7 @@ s1.parCost()
 
 #lancement de la méthode de validité d'entrée depuis la bibliothèque biblio.py
 
-biblio.error_message([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
+# error_message([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
 
 
 
