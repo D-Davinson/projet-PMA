@@ -7,10 +7,9 @@ class Task:
     run = None
 
 class TaskSystem:
-    def __init__(self, lTask=[Task], dict={}, max_threads=4):
+    def __init__(self, lTask=[Task], dict={}):
         self.lTask = lTask
         self.dict = dict
-        self.max_threads = max_threads
 
     def getDependencies(self, nomTache):
         visited = set()
@@ -55,7 +54,7 @@ class TaskSystem:
             if to_run.name in dependance.reads:
                 self.runSeq(dependance)
 
-    def run(self):
+    def run(self, max_threads=4):
         # Liste des threads en cours d'exécution
         running_threads = []
 
@@ -64,7 +63,7 @@ class TaskSystem:
 
         while ready_tasks or running_threads:
             # Lancer autant de threads que possible
-            while len(running_threads) < self.max_threads and ready_tasks:
+            while len(running_threads) < max_threads and ready_tasks:
                 tache = ready_tasks.pop(0)
                 thread = threading.Thread(target=tache.run)
                 thread.start()
