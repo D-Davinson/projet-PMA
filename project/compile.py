@@ -36,15 +36,15 @@ tSomme.run()
 
 # initialisation du sysstème de tâches
 
-s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": [], "somme": ["T1", "T2"]})
+s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
 
 #lancement des differentes méthodes depuis la bibliothèque biblio.py -> Class TaskSystem
 
-print(s1.getDependencies("T1"), "est la liste de dépendances de la tâche")
-s1.runSeq()
-s1.run()
-s1.detTestRnd()
-s1.parCost()
+# print(s1.getDependencies("T1"), "est la liste de dépendances de la tâche")
+# s1.runSeq()
+# s1.run()
+# s1.detTestRnd()
+# s1.parCost()
 
 #lancement de la méthode de validité d'entrée depuis la bibliothèque biblio.py
 

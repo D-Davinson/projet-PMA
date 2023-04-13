@@ -12,19 +12,20 @@ class TaskSystem:
         self.dict = dict
 
     def getDependencies(self, nomTache):
-        visited = set()
+        #initialisation
+        parcouru = set()
         deps = []
-
+        #fonction récurisive seach qui permet d'explorer toute les tâches dependantes de la tâche donnée en parametre
         def search(task):
-            visited.add(task)
+            parcouru.add(task)
             for i in self.dict[task]:
-                if i not in visited:
-                    dependencies_ready = True
+                if i not in parcouru:
+                    pret_dep = True
                     for j in self.lTask:
                         if j.name == i and j.run is None:
-                            dependencies_ready = False
+                            pret_dep = False
                             break
-                    if dependencies_ready:
+                    if pret_dep:
                         thread = threading.Thread(target=search, args=(i,))
                         thread.start()
                         deps.append(i)
@@ -33,61 +34,62 @@ class TaskSystem:
         for thread in threading.enumerate():
             if thread != threading.main_thread():
                 thread.join()
+        # tri et enlèvent les redondances et retourne la liste de dépendances        
         return sorted(set(deps))
 
     def runSeq(self):
         # Trouver la première tâche à exécuter
-        to_run = None
+        exec = None
         for tache in self.lTask:
             if not tache.reads:
-                to_run = tache
+                exec = tache
                 break
-        if not to_run:
+        if not exec:
             # Aucune tâche sans dépendances trouvée
             return
         
         # Exécution de la tâche
-        to_run.run()
+        exec.run()
         
         # Exécution des tâches dépendantes
         for dependance in self.lTask:
-            if to_run.name in dependance.reads:
+            if exec.name in dependance.reads:
                 self.runSeq(dependance)
 
-    def run(self, max_threads=4):
+    def run(self):
         # Liste des threads en cours d'exécution
-        running_threads = []
+        init_threads = []
 
         # Liste des tâches prêtes à être exécutées
-        ready_tasks = [t for t in self.lTask if not t.reads]
+        exec_tasks = [t for t in self.lTask if not t.reads]
 
-        while ready_tasks or running_threads:
+        while exec_tasks or init_threads:
             # Lancer autant de threads que possible
-            while len(running_threads) < max_threads and ready_tasks:
-                tache = ready_tasks.pop(0)
+            while len(init_threads) < exec_tasks:
+                tache = exec_tasks.pop(0)
                 thread = threading.Thread(target=tache.run)
                 thread.start()
-                running_threads.append((tache, thread))
+                init_threads.append((tache, thread))
 
             # Attendre la fin d'un thread
-            for task_thread in running_threads:
+            for task_thread in init_threads:
                 task, thread = task_thread
                 if not thread.is_alive():
-                    running_threads.remove(task_thread)
+                    init_threads.remove(task_thread)
                     # Exécuter les tâches dépendantes
                     for dependance in self.lTask:
                         if task.name in dependance.reads:
                             dependance.reads.remove(task.name)
                             if not dependance.reads:
-                                ready_tasks.append(dependance)
+                                exec_tasks.append(dependance)
     
-    def detTestRnd(self, num_runs=10):
+    def detTestRnd(self, nb_test=10):
 
-        for i in range(num_runs):
+        for i in range(nb_test):
             # Générer des valeurs aléatoires pour les variables
             for i in self.lTask:
                 for j in i.reads + i.writes:
-                    setattr(i, j, random.randint(0, 1000))
+                    setattr(i, j, random.randint(0, 100))
 
             # Exécuter le système de tâches en mode séquentiel et stocker le résultat
             results_seq = {}
@@ -107,10 +109,10 @@ class TaskSystem:
                 return False
 
         # Tous les tests ont réussi
-        print(f"Tous les {num_runs} tests ont réussi")
+        print(f"Tous les {nb_test} tests ont réussi")
         return True
     
-    def parCost(self, num_runs=10):
+    def parCost(self, nb_test=10):
         seq_times = []
         par_times = []
         
@@ -119,7 +121,7 @@ class TaskSystem:
         self.run()
         
         # mesure l'execution en time
-        for i in range(num_runs):
+        for i in range(nb_test):
             start_time_sq = time.time()
             self.runSeq()
             seq_times.append(time.time() - start_time_sq)
@@ -127,9 +129,9 @@ class TaskSystem:
             start_time_par = time.time()
             self.run()
             par_times.append(time.time() - start_time_par)
-            
-        average_seq = sum(seq_times) / num_runs
-        average_par = sum(par_times) / num_runs
+        #Calcul de la moyenne des deux executions    
+        average_seq = sum(seq_times) / nb_test
+        average_par = sum(par_times) / nb_test
         
         print(f"Execution séquenciel: {average_seq:.6f} secondes")
         print(f"Execution parallèle: {average_par:.6f} secondes")
@@ -141,15 +143,27 @@ class TaskSystem:
         graph = graphviz.Digraph()
 
         # Ajouter les noeuds
-        for tache in self.lTask:
-            graph.node(tache.name)
+        for t in self.lTask:
+            graph.node(t.name)
+        #Ajout des liens
+            for dep in self.getDependencies(t.name):
+                graph.edge(dep, t.name)
 
-        # Ajouter les liens
-            for dep in self.dict[tache.name]:
-                graph.edge(dep, tache.name)
+        # Ajout les liens parallèles suivant la condition de Bersteins
+            for i, t1 in enumerate(self.lTask):
+                for j in range(i+1, len(self.lTask)):
+                    t2 = self.lTask[j]
+                    if not set(t1.writes).intersection(t2.reads):
+                        continue
+                    if not set(t2.writes).intersection(t1.reads):
+                        continue
+                    if not set(t1.writes).intersection(t2.writes):
+                        graph.edge(t1.name, t2.name)
 
-        # Afficher le graphe
+    # Afficher le graphe
         graph.view()
+
+
 
 
 def error_message(lTask, dict):
@@ -160,23 +174,23 @@ def error_message(lTask, dict):
         return False
     
     # Vérifier si toutes les tâches mentionnées dans le dictionnaire de précédence existent
-    all_task_names = set(task_names)
+    allTask_names = set(task_names)
     for t, deps in dict.items():
-        if t not in all_task_names:
+        if t not in allTask_names:
             print(f"Erreur: La tâche {t} n'existe pas")
             return False
         for dep in deps:
-            if dep not in all_task_names:
+            if dep not in allTask_names:
                 print(f"Erreur: La tâche {dep} mentionnée comme dépendance de {t} est inexistante")
                 return False
     
     # Vérifier si le système de tâches est déterminé
-    visited = set()
-    for t in all_task_names:
-        if t not in visited:
+    parcouru = set()
+    for t in allTask_names:
+        if t not in parcouru:
             deps = TaskSystem(lTask, dict).getDependencies(t)
-            visited.update(deps)
-    if visited != all_task_names:
+            parcouru.update(deps)
+    if parcouru != allTask_names:
         print("Erreur: Le système de tâches est indéterminé")
         return False
     
