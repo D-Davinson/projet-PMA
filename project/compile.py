@@ -36,7 +36,7 @@ tSomme.run()
 
 # initialisation du sysstème de tâches
 
-s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
+s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": [], "somme": ["T1", "T2"]})
 
 #lancement des differentes méthodes depuis la bibliothèque biblio.py -> Class TaskSystem
 
@@ -55,4 +55,4 @@ s1.parCost()
 # methode draw mis en commentaire du fait d'un soucis lors de son exécution (problème directement liées dans la libraire de Graphviz)
 # fonctionne lorsque l'on execute uniquement cette méthode.
 
-# s1.draw()
+s1.draw()
