@@ -27,7 +27,7 @@ The objective is the implementation of a library that allows a task system to be
 |parCost(nb_test)|Measure the execution time between runSeq and run. Give the average and the difference|
 
 
-## Implementation
+## 💫 Implementation
 
 ### Import
 | Type of package | Import |
@@ -48,4 +48,7 @@ $ pip install graphviz
 ```
   
 
-## Authors
+## 🧑🏽‍💻 Authors
+
+- [@Davinson DOGLAS PRINCE](https://github.com/D-Davinson)
+- [@Exaucé MAKELE](https://github.com/M-Exauce)
