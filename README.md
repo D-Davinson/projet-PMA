@@ -36,7 +36,7 @@ The objective is the implementation of a library that allows a task system to be
 |PyPi| graphviz|
 
 ### Install
-- the standard imports are already in the pyhton library
+- the standard imports are already in the python library
 - Here is the installation required to install graphviz :
     https://pip.pypa.io/en/stable/installation/
   - Download zip application :  https://bootstrap.pypa.io/pip/pip.pyz
@@ -46,7 +46,19 @@ $ python get-pip.py
 
 $ pip install graphviz
 ```
-  
+### Run
+
+To compile the program :
+```
+$ clone https://github.com/D-Davinson/projet-PMA.git
+```
+_Open the reposotory projet-PMA_
+
+```
+$ cd project
+
+$ python3 compile.py
+```
 
 ## 🧑🏽‍💻 Authors
 
