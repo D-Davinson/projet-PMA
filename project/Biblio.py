@@ -36,27 +36,26 @@ class TaskSystem:
                 thread.join()
         # tri et enlèvent les redondances et retourne la liste de dépendances        
         return sorted(set(deps))
-
-    def runSeq(self):
-        # Trouver la première tâche à exécuter
-        exec = None
+    
+    # Récuperer les noms des Tâches
+    def getTask(self, nomTache):
         for tache in self.lTask:
-            if not tache.reads:
-                exec = tache
-                break
-        if not exec:
-            # Aucune tâche sans dépendances trouvée
-            return
-        
-        # Exécution de la tâche
-        exec.run()
-        
-        # Exécution des tâches dépendantes
-        for dependance in self.lTask:
-            if exec.name in dependance.reads:
-                self.runSeq(dependance)
+            if nomTache == tache.name:
+                return tache  
+    # Run les tâches récuperer par getTask  et relance runTask de manière récursive pour run la totalité des tâches via le dictionnaire      
+    def runTask(self, tache):
+        for dep in self.dict[tache.name]:
+            depTask = self.getTask(dep)
+            if depTask:
+                self.runTask(depTask)
+        tache.run()
+    # Lancement des méthodes auxilaire dans la liste de nos tâches
+    def runSeq(self):
+        for tache in self.lTask:
+            self.runTask(tache)
 
-    def run(self):
+
+    def run(self, max_threads=10):
         # Liste des threads en cours d'exécution
         init_threads = []
 
@@ -65,7 +64,7 @@ class TaskSystem:
 
         while exec_tasks or init_threads:
             # Lancer autant de threads que possible
-            while len(init_threads) < exec_tasks:
+            while len(init_threads) < max_threads and exec_tasks:
                 tache = exec_tasks.pop(0)
                 thread = threading.Thread(target=tache.run)
                 thread.start()
@@ -83,7 +82,7 @@ class TaskSystem:
                             if not dependance.reads:
                                 exec_tasks.append(dependance)
     
-    def detTestRnd(self, nb_test=10):
+    def detTestRnd(self, nb_test):
 
         for i in range(nb_test):
             # Générer des valeurs aléatoires pour les variables
@@ -112,14 +111,10 @@ class TaskSystem:
         print(f"Tous les {nb_test} tests ont réussi")
         return True
     
-    def parCost(self, nb_test=10):
+    def parCost(self, nb_test):
         seq_times = []
         par_times = []
-        
-        # execution des tâches en mode séquentiel et parallèle
-        self.runSeq()
-        self.run()
-        
+
         # mesure l'execution en time
         for i in range(nb_test):
             start_time_sq = time.time()
@@ -135,13 +130,12 @@ class TaskSystem:
         
         print(f"Execution séquenciel: {average_seq:.6f} secondes")
         print(f"Execution parallèle: {average_par:.6f} secondes")
-        print(f"Diffèrence: {average_par - average_seq:.6f} secondes")
+        print(f"Diffèrence: {average_seq - average_par:.6f} secondes")
                             
 
     def draw(self):
         # Créer le graphe
         graph = graphviz.Digraph()
-
         # Ajouter les noeuds
         for t in self.lTask:
             graph.node(t.name)
