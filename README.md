@@ -42,7 +42,7 @@ The objective is the implementation of a library that allows a task system to be
   - Download zip application :  https://bootstrap.pypa.io/pip/pip.pyz
   - Open a terminal/command prompt, cd to the folder containing the get-pip.py file and run:
 ```  
-$ python get-pip.py
+$ python3 get-pip.py
 
 $ pip install graphviz
 ```
