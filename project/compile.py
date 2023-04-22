@@ -40,18 +40,21 @@ s1 = TaskSystem([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]
 
 #lancement des differentes méthodes depuis la bibliothèque biblio.py -> Class TaskSystem
 
-#print(s1.getDependencies("T1"), "est la liste de dépendances de la tâche")
+
+print(s1.getDependencies("somme"), "est la liste de dépendances de la tâche")
+
+
 s1.runSeq()
 s1.run()
 
 #mettre en parametre le nombre de tests :
 
-s1.detTestRnd(3)
-s1.parCost(3)
+s1.detTestRnd(10)
+s1.parCost(10)
 
 #lancement de la méthode de validité d'entrée depuis la bibliothèque biblio.py
 
-error_message([t1, t2, tSomme], {"T1": [], "T2": ["T1"], "somme": ["T1", "T2"]})
+error_message([t1, t2, tSomme], {"T1": [], "T2": ["T70"], "somme": ["T1", "T2"]})
 
 
 
