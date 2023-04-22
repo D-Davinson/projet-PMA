@@ -53,6 +53,7 @@ class TaskSystem:
     def runSeq(self):
         for tache in self.lTask:
             self.runTask(tache)
+            print(tache.name)
 
 
     def run(self, max_threads=10):
@@ -156,7 +157,6 @@ class TaskSystem:
 
     # Afficher le graphe
         graph.view()
-
 
 
 
